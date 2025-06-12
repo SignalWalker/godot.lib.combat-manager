@@ -15,4 +15,8 @@ func _enter_tree() -> void:
 		return
 	Engine.set_meta(&"CombatManagerPlugin", self)
 	CombatManagerSettings.prepare()
+
+func _exit_tree() -> void:
+	if !Engine.is_editor_hint():
+		return
 	Engine.remove_meta("CombatManagerPlugin")

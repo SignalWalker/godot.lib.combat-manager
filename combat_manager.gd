@@ -2,37 +2,42 @@ class_name SCombatManager extends Node
 
 var default_combat_scene: PackedScene
 
+## A function taking a single parameter (the combat description) and returning an iterator over items of type CombatantDefinition
+var get_party_members: Callable = func(_desc: CombatDescription) -> Variant: return []:
+	get:
+		return get_party_members
+	set(value):
+		assert(value.is_valid(), "get_party_members must be valid")
+		assert(value.get_argument_count() == 1, "get_party_members must take one argument (the combat description)")
+		# wish i could check for return value, but alas...
+		get_party_members = value
+
 func _init() -> void:
 	var path: Variant = CombatManagerSettings.get_setting(CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH, null)
 	assert(path != null && (path is StringName || path is String), "must set combat_manager/%s" % CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH)
 	default_combat_scene = load(path)
 
 func _load_combat(description: Variant) -> CombatDescription:
+	assert(description != null && (description is CombatDescription || description is String || description is StringName), "first argument to start_combat must be non-null and either a CombatDescription or a String-like path to a CombatDescription")
 	if description is CombatDescription:
 		return description
-	elif description is String or description is StringName:
-		var desc: Variant = ResourceLoader.load(description as String)
-		if desc is not CombatDescription:
-			printerr("could not load combat description: resource at path ", description as String, " is not a combat description (found: ", desc, ")")
-			return null
-		return desc as CombatDescription
 	else:
-		printerr("first argument to start_combat must be either String-like or CombatDescription")
-		return null
+		var desc: Variant = ResourceLoader.load(description as String)
+		assert(desc is CombatDescription, "could not load combat description: resource at path {0} is not a combat description (found: {1})".format([description as String, desc]))
+		return desc as CombatDescription
 
-func start_combat(description: Variant) -> Combat:
+func start_combat(description: Variant, additional_actors: Variant = []) -> Combat:
 	var desc: CombatDescription = self._load_combat(description)
-	if desc == null:
-		# already printed errors
-		return null
 	# gui
-	var combat_screen: Node = (preload("res://gui/combat.tscn") as PackedScene).instantiate()
+	var combat_screen: Node = default_combat_scene.instantiate()
 	# party members
-	var party_members: Array[CombatantDefinition] = []
-	for p: PartyMember in StateManager.active_party_members():
-		party_members.push_back(p.combatant_definition())
+	var extra_actors: Array[CombatantDefinition] = []
+	for party_member: CombatantDefinition in self.get_party_members.call(desc):
+		extra_actors.push_back(party_member)
+	for add: CombatantDefinition in additional_actors:
+		extra_actors.push_back(add)
 	# start
-	var combat: Combat = Combat.new(desc, party_members)
+	var combat: Combat = Combat.new(desc, extra_actors)
 	self._start_combat(combat_screen, combat)
 	return combat
 
