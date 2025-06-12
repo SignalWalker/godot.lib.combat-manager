@@ -12,6 +12,10 @@ var get_party_members: Callable = func(_desc: CombatDescription) -> Variant: ret
 		# wish i could check for return value, but alas...
 		get_party_members = value
 
+## A function that adds the combat screen to the scene
+var add_screen_to_scene: Callable = func(_combat: Combat, screen: Node) -> void:
+	self.get_tree().root.add_child(screen)
+
 func _init() -> void:
 	var path: Variant = CombatManagerSettings.get_setting(CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH, null)
 	assert(path != null && (path is StringName || path is String), "must set combat_manager/%s" % CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH)
@@ -26,7 +30,7 @@ func _load_combat(description: Variant) -> CombatDescription:
 		assert(desc is CombatDescription, "could not load combat description: resource at path {0} is not a combat description (found: {1})".format([description as String, desc]))
 		return desc as CombatDescription
 
-func start_combat(description: Variant, additional_actors: Variant = []) -> Combat:
+func start_combat(description: Variant, additional_actors: Variant = [], defer: bool = true) -> Combat:
 	var desc: CombatDescription = self._load_combat(description)
 	# gui
 	var combat_screen: Node = default_combat_scene.instantiate()
@@ -38,29 +42,19 @@ func start_combat(description: Variant, additional_actors: Variant = []) -> Comb
 		extra_actors.push_back(add)
 	# start
 	var combat: Combat = Combat.new(desc, extra_actors)
-	self._start_combat(combat_screen, combat)
+	if defer:
+		self._start_combat.call_deferred(combat_screen, combat)
+	else:
+		self._start_combat(combat_screen, combat)
 	return combat
 
 func _start_combat(combat_screen: Node, state: Combat) -> void:
 	if combat_screen.has_method(&"start"):
-		# instantiate transition
-		var transition_class: GDScript = state.description.transition
-		var transition: Node = null
-		if transition_class != null:
-			if !transition_class.can_instantiate():
-				printerr("cannot instantiate instance of combat transition: ", transition_class)
-			transition = transition_class.new()
-			if transition is not Node:
-				printerr("instantiated combat transition is not a Node: ", transition)
-				transition = null
-		if transition == null:
-			transition = SwirlTransition.new()
-		# push overlay
-		var ovl: SceneManager.Overlay = SceneManager.push_overlay(combat_screen, transition)
-		if !(await ovl.wait_active()):
-			printerr("could not start combat: could not push combat screen overlay, status: ")
-			return
+		# add screen to scene
 		state.gui_root_ref = weakref(combat_screen)
-		combat_screen.call(&"start", state)
+		combat_screen.ready.connect(func() -> void:
+			combat_screen.call(&"start", state)
+		)
+		self.add_screen_to_scene.call(state, combat_screen)
 	else:
-		printerr("could not start combat: could not call [code]combat_screen.start[/code]")
+		printerr("[CombatManager] could not start combat: could not call [code]combat_screen.start[/code]")

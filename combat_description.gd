@@ -7,6 +7,3 @@ class_name CombatDescription extends Resource
 
 ## Script for mid-battle events, etc., if set
 @export var conductor: ConductorFactory = ConductorFactory.new()
-
-## Scene transition
-@export var transition: GDScript = null
