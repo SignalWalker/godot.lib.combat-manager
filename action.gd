@@ -25,6 +25,19 @@ signal resolved()
 ## Emitted after this action is canceled.
 signal canceled()
 
+static func iterable_is_active(v: Variant) -> bool:
+	return Iterator.is_iterable(v) && Iterator.all(v, func(a: Variant) -> bool: return a is Actor && (a as Actor).is_active())
+
+static func variant_is_active(v: Variant) -> bool:
+	if v == null:
+		return false
+	elif v is Actor:
+		return (v as Actor).is_active()
+	elif v is Array:
+		return iterable_is_active(v as Array)
+	else:
+		return false
+
 func _init(exec: Variant) -> void:
 	self.executor = exec
 
