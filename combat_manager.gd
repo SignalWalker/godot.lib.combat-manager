@@ -1,4 +1,6 @@
-class_name SCombatManager extends Node
+extends Node
+
+const CMSettings := preload("./settings.gd")
 
 var default_combat_scene: PackedScene
 
@@ -17,8 +19,8 @@ var add_screen_to_scene: Callable = func(_combat: Combat, screen: Node) -> void:
 	self.get_tree().root.add_child(screen)
 
 func _init() -> void:
-	var path: Variant = CombatManagerSettings.get_setting(CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH, null)
-	assert(path != null && (path is StringName || path is String), "must set combat_manager/%s" % CombatManagerSettings.DEFAULT_COMBAT_SCENE_PATH)
+	var path: Variant = CMSettings.get_setting(CMSettings.DEFAULT_COMBAT_SCENE_PATH, null)
+	assert(path != null && (path is StringName || path is String), "must set combat_manager/%s" % CMSettings.DEFAULT_COMBAT_SCENE_PATH)
 	default_combat_scene = load(path)
 
 func _load_combat(description: Variant) -> CombatDescription:
@@ -51,10 +53,10 @@ func start_combat(description: Variant, additional_actors: Variant = [], defer: 
 func _start_combat(combat_screen: Node, state: Combat) -> void:
 	if combat_screen.has_method(&"start"):
 		# add screen to scene
-		state.gui_root_ref = weakref(combat_screen)
+		state.gui_root = combat_screen
 		combat_screen.ready.connect(func() -> void:
 			combat_screen.call(&"start", state)
 		)
 		self.add_screen_to_scene.call(state, combat_screen)
 	else:
-		printerr("[CombatManager] could not start combat: could not call [code]combat_screen.start[/code]")
+		push_error("could not start combat: could not call [code]combat_screen.start[/code]")

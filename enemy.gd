@@ -1,4 +1,5 @@
-class_name EnemyResource extends Resource
+class_name Enemy extends Resource
+## Definition of an enemy that can appear in combat.
 
 ## The enemy's displayed name
 @export var name: String = ""
