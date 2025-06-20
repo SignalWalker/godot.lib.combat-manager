@@ -63,6 +63,12 @@ signal actor_became_inactive(actor: Actor)
 ## Emitted after an actor's state changes
 signal actor_mutated(actor: Actor)
 
+## Emitted before an actor takes a turn.
+signal actor_taking_turn(actor: Actor)
+
+## Emitted after an actor takes a turn.
+signal actor_taken_turn(actor: Actor)
+
 ## Emitted after an action is enqueued
 signal action_enqueued(index: int, action: Action)
 
@@ -291,6 +297,14 @@ func _actor_became_active(a: Actor) -> void:
 func _actor_mutated(a: Actor) -> void:
 	assert(a.id in self.actors)
 	self.actor_mutated.emit(a)
+
+func _actor_taking_turn(a: Actor) -> void:
+	assert(a.id in self.actors)
+	self.actor_taking_turn.emit(a)
+
+func _actor_taken_turn(a: Actor) -> void:
+	assert(a.id in self.actors)
+	self.actor_taken_turn.emit(a)
 
 # [--------] ACTOR ITERATORS [--------]
 

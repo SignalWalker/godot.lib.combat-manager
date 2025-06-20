@@ -85,6 +85,7 @@ func take_turn() -> void:
 			return
 
 	self.taking_turn.emit()
+	self.combat._actor_taking_turn(self)
 
 	if self.controller != null:
 		var action := await self.controller.choose_action()
@@ -95,6 +96,7 @@ func take_turn() -> void:
 		self.state.end_turn()
 
 	self.taken_turn.emit()
+	self.combat._actor_taken_turn(self)
 
 func is_active() -> bool:
 	return self.state != null && self.state.is_active()
