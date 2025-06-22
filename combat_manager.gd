@@ -40,8 +40,10 @@ func start_combat(description: Variant, additional_actors: Variant = [], defer: 
 	var extra_actors: Array[CombatantDefinition] = []
 	for party_member: CombatantDefinition in self.get_party_members.call(desc):
 		extra_actors.push_back(party_member)
-	for add: CombatantDefinition in additional_actors:
-		extra_actors.push_back(add)
+
+	if additional_actors != null:
+		for add: CombatantDefinition in additional_actors:
+			extra_actors.push_back(add)
 	# start
 	var combat: Combat = Combat.new(desc, extra_actors)
 	if defer:
