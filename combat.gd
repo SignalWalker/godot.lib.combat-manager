@@ -17,11 +17,8 @@ var end_called: bool = false
 ## The description used to initialize this combat
 var description: CombatDescription
 
-## An object whose functions are called in response to various state changes
+## An object that determines turn order and whose functions are called in response to various state changes
 var conductor: Conductor
-
-## Manages turn order
-var turn_manager: TurnManager
 
 ## Root of the GUI for controlling this combat (if set)
 var gui_root_ref: WeakRef
@@ -102,7 +99,6 @@ signal ended()
 func _init(desc: CombatDescription, additional_actors: Array[CombatantDefinition]) -> void:
 	self.description = desc
 	self.action_queue = ActQueue.new(self)
-	self.turn_manager = desc.instantiate_turn_manager(self)
 	self.conductor = desc.instantiate_conductor(self)
 	for com: CombatantDefinition in additional_actors:
 		self.push_actor(com.controller, com.state)
@@ -161,12 +157,12 @@ func advance() -> void:
 		self._finish_advancing()
 		return
 
-	var turn_actors := await self.turn_manager.advance()
+	var turn_actors := await self.conductor.advance()
 
 	self._finish_advancing()
 
 	if self.end_called:
-		# end() was called while waiting on turn_manager.advance()
+		# end() was called while waiting on conductor.advance()
 		return
 
 	self.conductor.combat_advanced(turn_actors)
@@ -183,6 +179,7 @@ func end() -> void:
 		return
 
 	self.end_called = true
+	self.conductor.combat_ending()
 	self.ending.emit()
 
 	if self.is_advancing():
@@ -281,6 +278,7 @@ func resolve_next_action() -> void:
 
 	if self.action_queue.is_empty():
 		# that was the last action in the queue
+		self.conductor.resolved_last_action()
 		self.resolved_last_action.emit()
 
 	if self.can_resolve_an_action():

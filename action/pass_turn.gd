@@ -18,11 +18,11 @@ func get_target_count(_com: Combat, _exec: Variant) -> int:
 	return 1
 
 func is_valid() -> bool:
-	return self.could_be_valid(self.combat, self.exec)
+	return self.could_be_valid(self.combat, self.executor)
 
 func resolve() -> void:
-	if self.exec is Actor:
+	if self.executor is Actor:
 		await (self.executor as Actor).combat.post_message("{0} waits...".format([(self.executor as Actor).state.name]))
-	elif self.exec is Array[Actor]:
+	elif self.executor is Array[Actor]:
 		for a: Actor in (self.executor as Array[Actor]):
 			await a.combat.post_message("{0} waits...".format([a.name]))

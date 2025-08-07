@@ -3,7 +3,6 @@ extends RefCounted
 
 const DEFAULT_COMBAT_SCENE_PATH: String = "runtime/default_combat_scene_path"
 
-const DEFAULT_TURN_MANAGER_TYPE: String = "runtime/default_turn_manager_type"
 const DEFAULT_CONDUCTOR_TYPE: String = "runtime/default_conductor_type"
 
 const DEFAULT_ACTOR_CONTROLLER_TYPE: String = "runtime/actor/default_actor_controller_type"
@@ -16,12 +15,6 @@ const DEFINITIONS: Dictionary = {
 		"value": "",
 		"type": TYPE_STRING_NAME,
 		"hint": PROPERTY_HINT_FILE
-	},
-	DEFAULT_TURN_MANAGER_TYPE: {
-		"value": "TurnManager",
-		"type": TYPE_STRING,
-		"hint": PROPERTY_HINT_TYPE_STRING,
-		"hint_string": "TurnManager"
 	},
 	DEFAULT_CONDUCTOR_TYPE: {
 		"value": "Conductor",
