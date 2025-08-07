@@ -50,7 +50,6 @@ class TicketQueue extends RefCounted:
 
 		self.size += 1
 
-		print("action pushed by {0} at index {1}".format([act.executor.name, self.size - 1]))
 
 		return tk
 
@@ -95,7 +94,6 @@ class TicketQueue extends RefCounted:
 
 		self.size += 1
 
-		print("action inserted by {0} at index {1}".format([act.executor.name, index]))
 
 		return tk
 
