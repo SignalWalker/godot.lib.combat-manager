@@ -23,8 +23,8 @@ var type_script: Script:
 func instantiate(executor: Variant) -> Action:
 	if self.type_script is GDScript:
 		return (self.type_script as GDScript).new(executor)
-	elif self.type_script is CSharpScript:
-		return (self.type_script as CSharpScript).new(executor)
+	#elif self.type_script is CSharpScript:
+		#return (self.type_script as CSharpScript).new(executor)
 	else:
 		push_error("unimplemented: instantiation of scripts that are neither GDScript nor C#")
 		return null

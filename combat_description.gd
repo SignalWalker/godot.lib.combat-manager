@@ -28,11 +28,11 @@ func _property_get_revert(prop: StringName) -> Variant:
 func instantiate_conductor(combat: Combat) -> Conductor:
 	var script := Type.new(self.conductor_type)
 	assert(script.derives_from(&"Conductor"), "CombatDescription tried to instantiate script as Conductor that does not derive from Conductor ({0})".format([script]))
-	assert(script.type is GDScript || script.type is CSharpScript, "CombatDescription.conductor_type must be a GDScript or C# type")
+	assert(script.type is GDScript, "CombatDescription.conductor_type must be a GDScript or C# type")
 	if script.type is GDScript:
 		return (script.type as GDScript).new(combat) as Conductor
-	elif script.type is CSharpScript:
-		return (script.type as CSharpScript).new(combat) as Conductor
+	#elif script.type is CSharpScript:
+		#return (script.type as CSharpScript).new(combat) as Conductor
 	else:
 		assert(false, "unreachable")
 		return null

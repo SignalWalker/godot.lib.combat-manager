@@ -40,8 +40,8 @@ func derives_from(base: StringName) -> bool:
 func instantiate() -> Variant:
 	if self.type is GDScript:
 		return (self.type as GDScript).new()
-	elif self.type is CSharpScript:
-		return (self.type as CSharpScript).new()
+	#elif self.type is CSharpScript:
+		#return (self.type as CSharpScript).new()
 	else:
 		push_error("unimplemented: instantiate types that are neither GDScript nor CSharpScript ({0})".format([self.type]))
 		return null
